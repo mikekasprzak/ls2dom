@@ -72,4 +72,30 @@ while ( ($line = fgets(STDIN)) !== false ) {
 	}
 }
 
-echo json_encode($data,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
+//echo json_encode($data,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
+
+// *** LS2DOM STARTS HERE *** //
+
+$ret = [];
+
+// Look for Template domains //
+if ( isset($data['vhTemplate']) ) {
+	foreach ( $data['vhTemplate'] as $name => $template ) {
+		$ret[$name] = [];
+		foreach ( $template['member'] as $key => $instance ) {
+			if ( !isset($ret[$name][$key]) ) {
+				$ret[$name][$key] = [];
+			}
+			
+			$ret[$name][$key][] = $instance['vhDomain'];
+			if ( is_array($instance['vhAliases']) ) {
+				$ret[$name][$key] = array_merge( $ret[$name][$key], $instance['vhAliases'] );
+			}
+			else if ( is_string($instance['vhAliases']) ) {
+				$ret[$name][$key][] = $instance['vhAliases'];
+			}
+		}
+	}
+}
+
+echo json_encode($ret,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
