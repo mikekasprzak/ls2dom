@@ -97,12 +97,16 @@ function ls_Parse( &$FP ) {
 	return $data;
 }
 
-$file = STDIN;
+
 if ( count($argv) > 1 ) {
 	$file = fopen($argv[1], 'r');
 	if ( $file === false ) {
 		return -1;
-	}	
+	}
+}
+else {
+	echo "\nusage: ".$argv[0]." filename.conf\n\n";
+	return -1;	
 }
 
 $data = ls_Parse($file);
