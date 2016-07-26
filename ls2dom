@@ -111,27 +111,42 @@ else {
 
 $data = ls_Parse($file);
 
-// echo json_encode($data,JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES)."\n";
-
 // *** LS2DOM STARTS HERE *** //
 
 $ret = [];
+$SERVER_ROOT = "..";
+//$SERVER_ROOT = "/usr/local/lsws";
+
 
 // Look for Template domains //
 if ( isset($data['vhTemplate']) ) {
 	foreach ( $data['vhTemplate'] as $name => $template ) {
 		$ret[$name] = [];
+		$ret[$name]['templateFile'] = $template['templateFile'];
+		
+		$parsed_file = str_replace('$SERVER_ROOT', $SERVER_ROOT, $template['templateFile']);
+		//$ret[$name]['parsedFile'] = $parsed_file;
+		
+		$file2 = fopen( $parsed_file, "r" );
+		$template_data = ls_Parse($file2);
+		fclose($file2);
+		
+		//$ret[$name]['parsedFile'] = $parsed_file;
+	
+		$ret[$name]['vhRoot'] = $template_data['vhRoot'];
+	
+		$ret[$name]['member'] = [];
 		foreach ( $template['member'] as $key => $instance ) {
-			if ( !isset($ret[$name][$key]) ) {
-				$ret[$name][$key] = [];
+			if ( !isset($ret[$name]['member'][$key]) ) {
+				$ret[$name]['member'][$key] = [];
 			}
 			
-			$ret[$name][$key][] = $instance['vhDomain'];
+			$ret[$name]['member'][$key][] = $instance['vhDomain'];
 			if ( is_array($instance['vhAliases']) ) {
-				$ret[$name][$key] = array_merge( $ret[$name][$key], $instance['vhAliases'] );
+				$ret[$name]['member'][$key] = array_merge( $ret[$name]['member'][$key], $instance['vhAliases'] );
 			}
 			else if ( is_string($instance['vhAliases']) ) {
-				$ret[$name][$key][] = $instance['vhAliases'];
+				$ret[$name]['member'][$key][] = $instance['vhAliases'];
 			}
 		}
 	}
